@@ -1,16 +1,187 @@
-<manifest package="com.example.list" xmlns:android="http://schemas.android.com/apk/res/android">
-    <application
-        android:allowBackup="true"
-        android:label="@string/app_name"
-        android:icon="@mipmap/ic_launcher"
-        android:roundIcon="@mipmap/ic_launcher_round"
-        android:supportsRtl="true">
-        <activity android:name="com.example.list.MainActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-    </application>
-</manifest>
+MaiinActivity.kt
+(package com.example.list
+
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.example.data.Datasource
+import com.example.list.ui.theme.ListTheme
+import com.example.model.Affirmation
+
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            ListTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    AffirmationsApp()
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun AffirmationsApp() {
+    AffirmationGrid(affirmationList = Datasource().loadList())
+}
+
+@Composable
+fun AffirmationGrid(affirmationList: List<Affirmation>, modifier: Modifier = Modifier) {
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(2), //dos columnas
+        modifier = modifier
+            .fillMaxSize()
+            .padding(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp) //espacio orizontal entre columnas
+    ) {
+        items(affirmationList) { affirmation ->
+            AffirmationCard(affirmation = affirmation)
+        }
+    }
+}
+
+@Composable
+fun AffirmationCard(affirmation: Affirmation, modifier: Modifier = Modifier) {
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(100.dp),
+        shape = MaterialTheme.shapes.medium,
+        elevation = CardDefaults.cardElevation(4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp)
+        ) {
+            //imagen 68dp x 68dp como lo pide
+            Image(
+                painter = painterResource(affirmation.imageResourceId),
+                contentDescription = stringResource(affirmation.stringResourceId),
+                modifier = Modifier
+                    .size(68.dp)
+                    .padding(end = 16.dp),
+                contentScale = ContentScale.Crop
+            )
+
+            Column(
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = LocalContext.current.getString(affirmation.stringResourceId),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Star,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = affirmation.number.toString(),
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun AffirmationCardPreview() {
+    ListTheme {
+        AffirmationCard(
+            affirmation = Affirmation(R.string.weeknd, R.drawable.starboy, 321)
+        )
+    }
+})
+
+(<resources>
+    <string name="app_name">List</string>
+    <string name="weeknd">The Weeknd</string>
+    <string name="ari">Ariana Grande</string>
+    <string name="Lana">Lana Del Rey</string>
+    <string name="beli">Belinda</string>
+    <string name="billi">Billie Eilish</string>
+    <string name="ocean">Vaca Voladora</string>
+    <string name="blackpink">BlackPink</string>
+    <string name="kenia">Kenia OS</string>
+    <string name="younmiko">Young Miko</string>
+    <string name="feid">Feid</string>
+    <string name="karol">Karol G</string>
+    <string name="sabrina">Sabrina Carpenter</string>
+    <string name="gaga">Lady Gaga</string>
+    <string name="danna">Danna Paola</string>
+    <string name="doja">Doja Cat</string>
+    <string name="katseye">Katseye</string>
+</resources>
+)
+Datasource.kt
+(package com.example.data
+
+import com.example.list.R
+import com.example.model.Affirmation
+
+class Datasource {
+    fun loadList(): List<Affirmation> {
+        return listOf(
+            Affirmation(R.string.weeknd, R.drawable.starboy, 321),
+            Affirmation(R.string.ari, R.drawable.ariana_grande, 278),
+            Affirmation(R.string.Lana, R.drawable.lana_del_rey, 198),
+            Affirmation(R.string.beli, R.drawable.belinda, 450),
+            Affirmation(R.string.billi, R.drawable.billie_eilish, 390),
+            Affirmation(R.string.ocean, R.drawable.ocean, 210),
+            Affirmation(R.string.blackpink, R.drawable.blackpink, 510),
+            Affirmation(R.string.kenia, R.drawable.kenia_os, 412),
+            Affirmation(R.string.younmiko, R.drawable.young_miko, 333),
+            Affirmation(R.string.feid, R.drawable.feid, 289),
+            Affirmation(R.string.karol, R.drawable.karol_g, 497),
+            Affirmation(R.string.sabrina, R.drawable.sabrina, 180),
+            Affirmation(R.string.gaga, R.drawable.lady_gaga, 365),
+            Affirmation(R.string.danna, R.drawable.danna_paola, 267),
+            Affirmation(R.string.doja, R.drawable.doja_cat, 410),
+            Affirmation(R.string.katseye, R.drawable.katseye, 144)
+        )
+    }
+})
+        Affirmation.kt
+(package com.example.model
+
+data class Affirmation(
+    val stringResourceId: Int,
+    val imageResourceId: Int,
+    val number: Int
+))
